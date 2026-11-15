@@ -144,12 +144,12 @@ matplotlib is usually `Agg`-only. If a window still does not appear, check
 `/storage/emulated/0/Pictures/cv2/<window>.png` (override with
 `CV2_IMSHOW_DIR`). Run Tkinter scripts from the Pydroid IDE, not its Terminal.
 
-Pydroid's `pyjnius` only works inside the IDE **and** only when the script
-imports Kivy first (`import kivy` then `import jnius` — Pydroid picks its GUI
-process from that import), so it is not the default there. To try the
-`SurfaceView` path, start the script with `import kivy`, set
-`CV2_GUI=android` before `import cv2`, and run it from the Pydroid IDE; the
-wheel then finds the activity via `ActivityThread.mActivities`.
+Pydroid's `pyjnius` only works inside the IDE, in the process Pydroid starts
+for a **Kivy app**, and the JVM is attached only once Kivy runs. Put
+`from kivy.app import App` at the top of the script, set `CV2_GUI=android`
+before `import cv2`, and call `imshow` from `App.on_start` (the wheel then
+finds the activity via `ActivityThread.mActivities`). Don't block in
+`waitKey(0)` there — it stalls Kivy's event loop.
 [`examples/pydroid_jnius.py`](examples/pydroid_jnius.py) is a ready-to-run
 version (and [`examples/pydroid_tk.py`](examples/pydroid_tk.py) the Tk one).
 

@@ -109,24 +109,35 @@ backend work in hosts such as Pydroid whose activity class is not known in
 advance.
 
 Pydroid note: its bundled `pyjnius` raises `No JNIEnv available in Terminal`
-unless the interpreter is the GUI process, and Pydroid only provides that when
-the script imports **Kivy** (its documented order is `import kivy` *before*
-`import jnius`). The script must therefore start with `import kivy` — putting
-it after `import cv2` is too late, because Pydroid has already picked the
-process by then:
+unless the script runs in the process Pydroid starts for a **Kivy app**, and
+the JVM only becomes usable once Kivy is actually running. Two rules follow:
+
+1. `from kivy.app import App` must appear at the top of the script — Pydroid
+   scans the source for it to choose its GUI process, so putting it after
+   `import cv2` (or only inside the wheel) is too late.
+2. Create the SurfaceView from `App.on_start`, not at import time.
 
 ```python
-import kivy                      # FIRST: Pydroid selects its GUI process
 import os
-os.environ["CV2_GUI"] = "android"
+os.environ["CV2_GUI"] = "android"     # before importing cv2
+
+from kivy.app import App
+from kivy.clock import Clock
 import cv2
 
-print(cv2.gui_backend)           # "android"
-img = cv2.imread("/storage/emulated/0/test.jpg")
-cv2.imshow("frame", img)         # pyjnius SurfaceView
-cv2.waitKey(0)
-cv2.destroyAllWindows()
+IMG = "/storage/emulated/0/test.jpg"
+
+class TestApp(App):
+    def on_start(self):
+        print(cv2.gui_backend)        # "android"
+        cv2.imshow("frame", cv2.imread(IMG))
+        Clock.schedule_once(lambda dt: (cv2.destroyAllWindows(), self.stop()), 30)
+
+TestApp().run()
 ```
+
+Do not block in `waitKey(0)` inside a Kivy app — it stalls Kivy's event loop;
+the SurfaceView keeps the last frame on screen by itself.
 
 `CV2_GUI=auto` still prefers Tkinter on Pydroid so a plain script keeps
 working; use `CV2_GUI=android` only when you want the SurfaceView path from

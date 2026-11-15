@@ -94,7 +94,11 @@ highgui functions. Pick a backend with `CV2_GUI`:
 | `mpl` | matplotlib `pyplot.ion()` figures | notebooks / IDE |
 | `native` | compiled (headless) highgui, no override | headless |
 
-`cv2.gui_backend` reports what was selected.
+`cv2.gui_backend` reports what was selected. Set
+`CV2_GUI_LOG=/storage/emulated/0/cv2_diag.txt` before `import cv2` to append
+backend-selection details and the full traceback of a failed selection —
+handy on Pydroid, which often hides stdout for GUI apps
+([`examples/pydroid_diag.py`](examples/pydroid_diag.py)).
 
 ### Android / Kivy (fast path)
 

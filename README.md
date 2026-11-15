@@ -152,6 +152,10 @@ finds the activity via `ActivityThread.mActivities`). Don't block in
 `waitKey(0)` there — it stalls Kivy's event loop.
 [`examples/pydroid_jnius.py`](examples/pydroid_jnius.py) is a ready-to-run
 version (and [`examples/pydroid_tk.py`](examples/pydroid_tk.py) the Tk one).
+If Pydroid shows no output at all, run
+[`examples/pydroid_diag.py`](examples/pydroid_diag.py): it writes
+backend/`imread` diagnostics and a traceback to
+`/storage/emulated/0/cv2_diag.txt`.
 
 ## Verified
 

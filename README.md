@@ -112,8 +112,9 @@ Select a backend with `CV2_GUI`:
 
 | `CV2_GUI` | Backend |
 |---|---|
-| `auto` (default) | pyjnius `SurfaceView` on Android, else matplotlib `pyplot.ion()` |
+| `auto` (default) | pyjnius `SurfaceView` → Tkinter on Pydroid → matplotlib `pyplot.ion()` |
 | `android` | native `SurfaceView` via pyjnius (GPU composited, Kivy live video) |
+| `tk` | Tkinter window (Pydroid 3, or Termux with termux-x11) |
 | `mpl` | matplotlib `ion()` figures |
 | `native` | compiled headless highgui, no override |
 
@@ -136,6 +137,12 @@ See [`WHEEL_USAGE.md`](WHEEL_USAGE.md) for backend details, `pyjnius` knobs and
 rebuild commands. `imshow` also accepts a path (`cv2.imshow("photo",
 "photo.jpg")`) and raises a clear `TypeError`/`FileNotFoundError` for bad
 arguments.
+
+On Pydroid 3, `auto` selects the **Tkinter** backend because Pydroid's
+matplotlib is usually `Agg`-only. If a window still does not appear, check
+`cv2.gui_backend`: with `matplotlib`, frames are instead written to
+`/storage/emulated/0/Pictures/cv2/<window>.png` (override with
+`CV2_IMSHOW_DIR`). Run Tkinter scripts from the Pydroid IDE, not its Terminal.
 
 ## Verified
 

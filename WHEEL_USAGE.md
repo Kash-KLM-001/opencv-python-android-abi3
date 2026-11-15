@@ -74,6 +74,10 @@ Pydroid ships its own OpenCV build; if `import cv2` still resolves to that
 one, remove/rename it first or install this wheel into a virtualenv. The
 NumPy in Pydroid must be **1.25 or newer**.
 
+For `imshow`, `CV2_GUI=auto` selects the Tkinter backend on Pydroid (its
+matplotlib is Agg-only). Run from the **IDE**; Pydroid does not show Tkinter
+windows from its Terminal.
+
 Dependencies: `numpy>=1.25`, `matplotlib>=3.5`. One binary runs on
 Python 3.8+ (limited API `0x03080000`).
 
@@ -84,8 +88,9 @@ highgui functions. Pick a backend with `CV2_GUI`:
 
 | `CV2_GUI` | Backend | Use case |
 |---|---|---|
-| `auto` (default) | pyjnius/SurfaceView on Android, else matplotlib | normal |
+| `auto` (default) | pyjnius/SurfaceView → Tkinter on Pydroid → matplotlib | normal |
 | `android` | native `SurfaceView` via pyjnius (GPU composited) | Kivy live video |
+| `tk` | Tkinter window (`PhotoImage`, key events) | Pydroid 3, X11 |
 | `mpl` | matplotlib `pyplot.ion()` figures | notebooks / IDE |
 | `native` | compiled (headless) highgui, no override | headless |
 
@@ -134,6 +139,14 @@ cv2.waitKey(0)
 
 Centered 2D/3D images, gray/color, 8/16-bit and float (0..1 or 0..255) inputs
 are supported. Key events feed `waitKey`.
+
+Pydroid's matplotlib is normally built with the non-interactive `Agg` backend,
+where `ion()`/`show(block=False)` cannot open a window. In that case the wheel
+also saves each frame to `$CV2_IMSHOW_DIR` (default
+`/storage/emulated/0/Pictures/cv2/<window>.png`) and prints the path once, so
+you still get the image. On Pydroid prefer the Tk backend (`cv2.gui_backend ==
+"tk"`), which opens a real window; run it from the Pydroid **IDE**, not the
+Terminal (Pydroid only supports Tkinter from the IDE).
 
 Both backends also accept an image **path** for convenience:
 

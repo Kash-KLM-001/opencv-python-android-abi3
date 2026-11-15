@@ -88,7 +88,7 @@ highgui functions. Pick a backend with `CV2_GUI`:
 
 | `CV2_GUI` | Backend | Use case |
 |---|---|---|
-| `auto` (default) | pyjnius/SurfaceView → Tkinter on Pydroid → matplotlib | normal |
+| `auto` (default) | Tkinter on Pydroid → pyjnius/SurfaceView → matplotlib | normal |
 | `android` | native `SurfaceView` via pyjnius (GPU composited) | Kivy live video |
 | `tk` | Tkinter window (`PhotoImage`, key events) | Pydroid 3, X11 |
 | `mpl` | matplotlib `pyplot.ion()` figures | notebooks / IDE |
@@ -101,6 +101,17 @@ highgui functions. Pick a backend with `CV2_GUI`:
 `pyjnius` is available automatically inside python-for-android. Frames are
 converted to a reusable `ARGB_8888` `Bitmap` and blitted into a
 `SurfaceView`, with Android key codes mapped to `cv2.waitKey` values.
+
+The activity comes from `CV2_ACTIVITY_CLASS` (default
+`org.kivy.android.PythonActivity`) or, when that class is absent, from
+Android's `ActivityThread.mActivities` via reflection. The latter lets the
+backend work in hosts such as Pydroid whose activity class is not known in
+advance.
+
+Pydroid note: its bundled `pyjnius` raises `JNIEnv not available` outside the
+Pydroid IDE (the Terminal has no JVM context), and the `SurfaceView` path needs
+Pydroid's JVM glue. `CV2_GUI=auto` therefore prefers Tkinter there; use
+`CV2_GUI=android` from the IDE to force the pyjnius backend.
 
 ```python
 import cv2

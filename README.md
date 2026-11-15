@@ -112,7 +112,7 @@ Select a backend with `CV2_GUI`:
 
 | `CV2_GUI` | Backend |
 |---|---|
-| `auto` (default) | pyjnius `SurfaceView` → Tkinter on Pydroid → matplotlib `pyplot.ion()` |
+| `auto` (default) | Tkinter on Pydroid → pyjnius `SurfaceView` → matplotlib `pyplot.ion()` |
 | `android` | native `SurfaceView` via pyjnius (GPU composited, Kivy live video) |
 | `tk` | Tkinter window (Pydroid 3, or Termux with termux-x11) |
 | `mpl` | matplotlib `ion()` figures |
@@ -143,6 +143,11 @@ matplotlib is usually `Agg`-only. If a window still does not appear, check
 `cv2.gui_backend`: with `matplotlib`, frames are instead written to
 `/storage/emulated/0/Pictures/cv2/<window>.png` (override with
 `CV2_IMSHOW_DIR`). Run Tkinter scripts from the Pydroid IDE, not its Terminal.
+
+Pydroid's `pyjnius` only works inside the IDE (the Terminal has no `JNIEnv`),
+so it is not the default there. To try the `SurfaceView` path, run
+`CV2_GUI=android` from the Pydroid IDE; the wheel then finds the activity via
+`ActivityThread.mActivities`.
 
 ## Verified
 

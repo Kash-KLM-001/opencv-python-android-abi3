@@ -55,6 +55,21 @@ Pydroid reports `linux_aarch64`, so install the tagged wheel:
 pip install /storage/emulated/0/opencv_python_android-4.10.0-cp38-abi3-linux_aarch64.whl
 ```
 
+Pydroid does **not** expose CPython symbols to extension modules (`dlopen`
+cannot resolve even public ones such as `PyType_GenericAlloc`). The Pydroid
+wheel therefore ships a different `cv2/cv2.abi3.so` that declares:
+
+```
+NEEDED  libpython3.13.so
+RUNPATH $ORIGIN/../../../../lib
+```
+
+`$ORIGIN` is `.../lib/python3.13/site-packages/cv2`, so the RUNPATH resolves to
+Pydroid's own `<python-root>/lib/libpython3.13.so` — the exact library already
+loaded by the running interpreter, not a copy. If your Pydroid updates to a
+different Python (say 3.16), either use the generic wheel with the manual
+`LD_PRELOAD` described below, or rebuild with the matching `CV2_SO` variant.
+
 Pydroid ships its own OpenCV build; if `import cv2` still resolves to that
 one, remove/rename it first or install this wheel into a virtualenv. The
 NumPy in Pydroid must be **1.25 or newer**.
@@ -137,13 +152,16 @@ points, so it references only `Py_BuildValue`, `Py_DecRef`, and `Py_IncRef`
 
 Runtime behavior:
 
-* **Pydroid 3** exposes public CPython symbols to extensions, so the wheel
-  loads directly.
+* **Pydroid 3** does not export CPython symbols to `dlopen`ed extensions at
+  all. The `linux_aarch64` wheel handles this with a hard
+  `DT_NEEDED libpython3.13.so` plus the relative RUNPATH
+  `$ORIGIN/../../../../lib`, so no `LD_PRELOAD` or re-exec is involved.
 * **Termux** keeps `libpython` out of the namespace used for extension
   `dlopen` and bionic cannot promote an already-loaded library with
-  `RTLD_GLOBAL`. `cv2/init.py` therefore re-executes the interpreter once
-  with `LD_PRELOAD` set when the first load fails. This is transparent for
-  normal scripts and `python -c`.
+  `RTLD_GLOBAL`. The generic wheel stays free of any `libpython` dependency;
+  `cv2/init.py` re-executes the interpreter once with `LD_PRELOAD` set when
+  the first load fails. This is transparent for normal scripts and
+  `python -c`.
 * Piped-stdin scripts (`python - <<EOF` / `python -`) cannot be re-executed
   because the input is already consumed; launch those with
   `LD_PRELOAD=$PREFIX/lib/libpython3.14.so python -`.
@@ -172,6 +190,16 @@ PY=android/androif-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/python3/bin/pyt
 $PY make_wheel.py                                                   # Termux / p4a
 CV2_WHEEL_PLATFORM=linux_aarch64 $PY make_wheel.py                  # Pydroid 3
 CV2_WHEEL_PLATFORM=linux_aarch64.android_24_arm64_v8a $PY make_wheel.py  # both
+```
+
+For the Pydroid wheel, first create the linked extension variant:
+
+```bash
+cp output/cv2.abi3.so output/cv2.abi3.pydroid.so
+patchelf --set-rpath '$ORIGIN/../../../../lib' \
+         --add-needed libpython3.13.so output/cv2.abi3.pydroid.so
+CV2_SO=output/cv2.abi3.pydroid.so \
+CV2_WHEEL_PLATFORM=linux_aarch64 $PY make_wheel.py
 ```
 
 `CV2_WHEEL_PLATFORM` accepts comma- or dot-separated platform tags; each tag

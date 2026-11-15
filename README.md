@@ -63,6 +63,29 @@ LD_PRELOAD=$PREFIX/lib/libpython3.14.so python -
 
 Set `CV2_PRELOAD_REEXEC=1` to disable the automatic re-exec.
 
+### Pydroid 3 note
+
+Pydroid does not export CPython symbols to `dlopen`ed extensions — not even
+public ones like `PyType_GenericAlloc`. The `linux_aarch64` wheel therefore
+ships a **separate** `cv2/cv2.abi3.so` with:
+
+```
+NEEDED  libpython3.13.so
+RUNPATH $ORIGIN/../../../../lib
+```
+
+`$ORIGIN` is `<python-root>/lib/python3.13/site-packages/cv2`, so the RUNPATH
+points at Pydroid's own `<python-root>/lib/libpython3.13.so` — the library the
+running interpreter already loaded, not a copy. No `LD_PRELOAD` and no re-exec
+are needed. This makes the Pydroid wheel specific to Python 3.13; if Pydroid
+moves to another ABI, rebuild the variant with the matching soname (see
+[`WHEEL_USAGE.md`](WHEEL_USAGE.md#rebuild-the-wheel)) or use the generic wheel
+with `LD_PRELOAD`.
+
+The dual-tag wheel (`linux_aarch64.android_24_arm64_v8a`) uses the generic
+extension, so it works on Termux/p4a and on Pydroid only when libpython is
+preloaded manually. Prefer the dedicated wheel for each runtime.
+
 ## What is included
 
 - OpenCV **4.10** main + contrib modules (core, imgproc, imgcodecs, videoio,
@@ -78,7 +101,9 @@ Set `CV2_PRELOAD_REEXEC=1` to disable the automatic re-exec.
 
 Only Android system libraries are required at runtime: `libandroid.so`,
 `liblog.so`, `libmediandk.so`, `libcamera2ndk.so`, `libz.so`, `libdl.so`,
-`libm.so`, `libc.so`. No `libpython` dependency.
+`libm.so`, `libc.so`. The generic wheel has **no `libpython` dependency**; the
+Pydroid wheel adds exactly one (`libpython3.13.so`) to bind to the interpreter
+that Pydroid has already loaded.
 
 ## `imshow` / `waitKey`
 
@@ -131,6 +156,21 @@ Built from OpenCV 4.10 + opencv_contrib with:
 - `PYTHON3_LIMITED_API=ON`, `PYTHON3_LIMITED_API_VERSION=0x03080000`
 - `WITH_ANDROID_MEDIANDK=ON`, `WITH_ANDROID_NATIVE_CAMERA=ON`
 - Android NDK r29, API 24, arm64-v8a
+
+## Credits
+
+- **Kash-KLM-001** — project owner: scope, requirements, toolchain constraints,
+  on-device testing (including the Pydroid tracebacks that drove the loader
+  design), repository and release maintenance.
+- **Big Pickle (OpenCode agent)** — build engineering: OpenCV/NDK patches,
+  static limited-API build, `pycompat_shim.h`, wheel loader, Termux re-exec and
+  Pydroid `DT_NEEDED` variants, `imshow` backends, packaging, tests and docs.
+- **OpenCV / opencv_contrib** — the actual library, Apache-2.0.
+- Android NDK/libc++, CPython, NumPy, matplotlib, pyjnius, Termux, Pydroid 3,
+  python-for-android/Kivy, and the bundled codec libraries.
+
+Full attribution, including third-party licenses, is in
+[`CREDITS.md`](CREDITS.md) and [`THIRD-PARTY-LICENSES.txt`](THIRD-PARTY-LICENSES.txt).
 
 ## License
 

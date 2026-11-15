@@ -135,6 +135,16 @@ cv2.waitKey(0)
 Centered 2D/3D images, gray/color, 8/16-bit and float (0..1 or 0..255) inputs
 are supported. Key events feed `waitKey`.
 
+Both backends also accept an image **path** for convenience:
+
+```python
+cv2.imshow("photo", "photo.jpg")               # loaded with cv2.imread
+cv2.imshow("photo", cv2.imread("photo.jpg"))   # same thing, explicit
+```
+
+Any other unsupported object raises a `TypeError` naming the dtype, and an
+unreadable path raises `FileNotFoundError`.
+
 ## Termux / Pydroid note
 
 Older builds of this wheel referenced CPython private symbols such as

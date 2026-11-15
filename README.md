@@ -133,7 +133,9 @@ cap.release()
 ```
 
 See [`WHEEL_USAGE.md`](WHEEL_USAGE.md) for backend details, `pyjnius` knobs and
-rebuild commands.
+rebuild commands. `imshow` also accepts a path (`cv2.imshow("photo",
+"photo.jpg")`) and raises a clear `TypeError`/`FileNotFoundError` for bad
+arguments.
 
 ## Verified
 

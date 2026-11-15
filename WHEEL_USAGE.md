@@ -108,10 +108,30 @@ Android's `ActivityThread.mActivities` via reflection. The latter lets the
 backend work in hosts such as Pydroid whose activity class is not known in
 advance.
 
-Pydroid note: its bundled `pyjnius` raises `JNIEnv not available` outside the
-Pydroid IDE (the Terminal has no JVM context), and the `SurfaceView` path needs
-Pydroid's JVM glue. `CV2_GUI=auto` therefore prefers Tkinter there; use
-`CV2_GUI=android` from the IDE to force the pyjnius backend.
+Pydroid note: its bundled `pyjnius` raises `No JNIEnv available in Terminal`
+unless the interpreter is the GUI process, and Pydroid only provides that when
+the script imports **Kivy** (its documented order is `import kivy` *before*
+`import jnius`). The script must therefore start with `import kivy` — putting
+it after `import cv2` is too late, because Pydroid has already picked the
+process by then:
+
+```python
+import kivy                      # FIRST: Pydroid selects its GUI process
+import os
+os.environ["CV2_GUI"] = "android"
+import cv2
+
+print(cv2.gui_backend)           # "android"
+img = cv2.imread("/storage/emulated/0/test.jpg")
+cv2.imshow("frame", img)         # pyjnius SurfaceView
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+```
+
+`CV2_GUI=auto` still prefers Tkinter on Pydroid so a plain script keeps
+working; use `CV2_GUI=android` only when you want the SurfaceView path from
+the IDE. If Pydroid's pyjnius lacks `org.jnius.NativeInvocationHandler`, the
+UI callback cannot be built and `android` will fail — stay on `tk`.
 
 ```python
 import cv2

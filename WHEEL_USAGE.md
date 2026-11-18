@@ -204,6 +204,34 @@ cv2.imshow("photo", cv2.imread("photo.jpg"))   # same thing, explicit
 Any other unsupported object raises a `TypeError` naming the dtype, and an
 unreadable path raises `FileNotFoundError`.
 
+## Camera and video I/O
+
+| Input | Backend | Status |
+|-------|---------|--------|
+| `VideoCapture(0)` | Camera2 NDK | ✅ works, including from a plain script |
+| `VideoCapture("file.mp4")` | MediaNDK | ✅ decodes Android-supported formats |
+| `VideoWriter("out.mp4", …)` | MediaNDK | ✅ encodes |
+| `rtsp://`, `http://` | — | ❌ needs FFmpeg, not built |
+
+`VideoCapture(0)` needs Camera permission and must not race another app holding
+the camera. The Camera2 callbacks run on a looper prepared and pumped by the
+backend on the calling thread, so no Kivy/Activity thread is required for
+capture (only for the SurfaceView *display*).
+
+```python
+import cv2
+
+cap = cv2.VideoCapture(0, cv2.CAP_ANDROID)   # 0 = back, 1 = front
+ok, frame = cap.read()
+if ok:
+    cv2.imwrite("/storage/emulated/0/camera_capture.jpg", frame)
+cap.release()
+```
+
+Run [`examples/camera_capture.py`](examples/camera_capture.py) for a
+capture/preview script. [`CAMERA.md`](CAMERA.md) documents the looper fix, the
+rebuild steps and how to verify it on device.
+
 ## Termux / Pydroid note
 
 Older builds of this wheel referenced CPython private symbols such as
@@ -253,13 +281,19 @@ Only Android system libraries are needed at runtime: `libandroid.so`,
 ## Rebuild the wheel
 
 ```bash
-# requires output/cv2.abi3.so from build_abi3.sh
+# build + strip the extension
+./build_abi3.sh
+bash strip_abi3.sh          # 444 MB unstripped -> ~40 MB stripped
+
 PY=android/androif-ndk-r29/toolchains/llvm/prebuilt/linux-x86_64/python3/bin/python3.11
 
 $PY make_wheel.py                                                   # Termux / p4a
 CV2_WHEEL_PLATFORM=linux_aarch64 $PY make_wheel.py                  # Pydroid 3
 CV2_WHEEL_PLATFORM=linux_aarch64.android_24_arm64_v8a $PY make_wheel.py  # both
 ```
+
+`strip_abi3.sh` is required: `build_abi3.sh` leaves `output/cv2.abi3.so`
+unstripped, and packaging that file produces a ~116 MB wheel instead of ~18 MB.
 
 For the Pydroid wheel, first create the linked extension variant:
 

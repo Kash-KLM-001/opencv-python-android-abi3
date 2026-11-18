@@ -138,6 +138,31 @@ rebuild commands. `imshow` also accepts a path (`cv2.imshow("photo",
 "photo.jpg")`) and raises a clear `TypeError`/`FileNotFoundError` for bad
 arguments.
 
+## Camera
+
+`cv2.VideoCapture(0)` works from a plain script. The Camera2 NDK backend
+prepares and pumps an Android looper on the calling thread, so the frame
+callbacks fire even when Python owns the thread — no extra thread, no JNI copy
+per frame.
+
+```python
+import cv2
+
+cap = cv2.VideoCapture(0, cv2.CAP_ANDROID)   # index 0 = back, 1 = front
+ok, frame = cap.read()
+if ok:
+    cv2.imwrite("/storage/emulated/0/camera_capture.jpg", frame)
+cap.release()
+```
+
+`CV2_GUI=native` (headless) is enough to capture and save;
+`CV2_GUI=android` gives the fastest live preview. Video **files** decode through
+MediaNDK; `rtsp://`/`http://` streams need FFmpeg, which is not built.
+
+[`examples/camera_capture.py`](examples/camera_capture.py) is a ready-to-run
+capture/preview script. See [`CAMERA.md`](CAMERA.md) for the root cause, the
+exact patch and device-verification steps.
+
 On Pydroid 3, `auto` selects the **Tkinter** backend because Pydroid's
 matplotlib is usually `Agg`-only. If a window still does not appear, check
 `cv2.gui_backend`: with `matplotlib`, frames are instead written to

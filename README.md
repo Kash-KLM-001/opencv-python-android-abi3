@@ -8,6 +8,11 @@ linked OpenCV, codecs and contrib modules) plus Haar/LBP cascade data. It
 works on Termux, Pydroid 3 and python-for-android/Kivy, and adds Android-native
 `imshow`/`waitKey` backends (pyjnius `SurfaceView` or matplotlib).
 
+**Authorship:** built by **Kash-KLM-001** (project owner, all device testing,
+publish decisions) together with **Big Pickle**, an OpenCode AI agent
+(implementation, build, packaging, documentation). The exact split, and how
+each change was verified, is in [`CREDITS.md`](CREDITS.md#who-did-what).
+
 ## Downloads
 
 Grab the wheel for your runtime from the
@@ -210,12 +215,17 @@ Built from OpenCV 4.10 + opencv_contrib with:
 
 ## Credits
 
+Two contributors — see [`CREDITS.md`](CREDITS.md#who-did-what) for the exact
+split of work.
+
 - **Kash-KLM-001** — project owner: scope, requirements, toolchain constraints,
-  on-device testing (including the Pydroid tracebacks that drove the loader
-  design), repository and release maintenance.
-- **Big Pickle (OpenCode agent)** — build engineering: OpenCV/NDK patches,
-  static limited-API build, `pycompat_shim.h`, wheel loader, Termux re-exec and
-  Pydroid `DT_NEEDED` variants, `imshow` backends, packaging, tests and docs.
+  every on-device test, the decision to fix the camera natively rather than in
+  Java, the diagnosis of the grey/rotated/glitched preview, publish approval,
+  and repository/release maintenance.
+- **Big Pickle (OpenCode agent)** — build engineering and implementation:
+  OpenCV/NDK patches, static limited-API build, `pycompat_shim.h`, wheel
+  loader, Termux re-exec and Pydroid `DT_NEEDED` variants, `imshow` backends,
+  the Camera2 looper/BGR/orientation fixes, packaging, tests and docs.
 - **OpenCV / opencv_contrib** — the actual library, Apache-2.0.
 - Android NDK/libc++, CPython, NumPy, matplotlib, pyjnius, Termux, Pydroid 3,
   python-for-android/Kivy, and the bundled codec libraries.

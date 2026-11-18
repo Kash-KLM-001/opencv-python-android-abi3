@@ -77,6 +77,48 @@ No extra thread and no background CPU cost.
 `ALooper_pollOnce` runs the queued Camera2 callbacks on the calling thread, so
 `OnCaptureCompleted` sets `captureSuccess` and the frame is acquired normally.
 
+## Second fix: grayscale, sideways, glitched bottom
+
+**Symptom:** with `CV2_GUI=android` the preview worked but was grey, rotated 90°
+and had a corrupted band along one edge. The saved JPEG was **640×720 with 1
+component** instead of 640×480×3.
+
+**Root causes:**
+
+1. `fourCC` defaulted to `FOURCC_UNKNOWN`. `grabFrame()` then set it to
+   `FOURCC_NV21`, and `retrieveFrame()` returned the *raw* NV21 buffer — a
+   `(H + H/2) × W` single-channel image. The top ⅔ is the luma plane (a
+   grayscale picture); the bottom ⅓ is the VU chroma plane (the "glitch").
+2. The Camera2 sensor orientation was never applied, so a sensor mounted at 90°
+   produced landscape frames.
+
+**Fix (`cap_android_camera.cpp`):**
+
+* Default `fourCC = FOURCC_BGR`, matching every other `VideoCapture` backend.
+  `retrieveFrame()` now converts NV21 → BGR.
+* Read `ACAMERA_SENSOR_ORIENTATION` in `initCapture()` and store it.
+* `retrieveFrame()` converts into a temporary `Mat` and passes it through
+  `orientFrame()`, which applies `ROTATE_90_CLOCKWISE` / `ROTATE_180` /
+  `ROTATE_90_COUNTERCLOCKWISE` for 90 / 180 / 270.
+* `CAP_PROP_FRAME_WIDTH` / `FRAME_HEIGHT` report the rotated size.
+* `CAP_PROP_ORIENTATION_META` returns the sensor angle and
+  `CAP_PROP_ORIENTATION_AUTO` (default `1`) toggles the rotation, so
+  `cap.set(cv2.CAP_PROP_ORIENTATION_AUTO, 0)` restores raw sensor frames.
+
+**Verify:**
+
+```python
+import cv2
+cap = cv2.VideoCapture(0)
+ret, frame = cap.read()
+print(frame.shape)                                  # (640, 480, 3) portrait
+print(cap.get(cv2.CAP_PROP_ORIENTATION_META))       # 90 (device dependent)
+print(hex(int(cap.get(cv2.CAP_PROP_FOURCC))))       # 0x33475242 == 'BGR3'
+```
+
+`examples/camera_check.py` prints exactly these values and flags a raw-NV21
+frame explicitly.
+
 ### Why not Java / pyjnius?
 
 | Path | Per-frame cost |

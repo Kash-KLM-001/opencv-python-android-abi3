@@ -5,6 +5,20 @@ All notable changes to this wheel. Each entry follows the same template:
 
 ## Unreleased
 
+### Fixed — camera preview was grayscale, rotated and glitched
+
+* **Symptom:** `CV2_GUI=android` showed a grey, 90°-rotated frame with a
+  corrupted band; the saved JPEG was 640×720 with one component.
+* **Root cause:** `fourCC` defaulted to `FOURCC_UNKNOWN`, so `grabFrame()` chose
+  `FOURCC_NV21` and `retrieveFrame()` returned the raw NV21 buffer
+  (`1.5 × H` rows, single channel: luma plane plus a chroma band). The sensor
+  orientation was also never applied.
+* **Fix:** default to `FOURCC_BGR`; read `ACAMERA_SENSOR_ORIENTATION` and rotate
+  in `retrieveFrame()`; report the rotated frame size; expose
+  `CAP_PROP_ORIENTATION_META` / `CAP_PROP_ORIENTATION_AUTO`.
+* **Verify:** `cap.read()[1].shape == (640, 480, 3)`, FOURCC `BGR3`, and
+  `examples/camera_check.py` reports `is colour BGR: True`.
+
 ### Fixed — native camera produced no frames
 
 * **Symptom:** `cv2.VideoCapture(0)` reports `isOpened() == True` but every

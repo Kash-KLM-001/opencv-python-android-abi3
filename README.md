@@ -156,12 +156,16 @@ cap.release()
 ```
 
 `CV2_GUI=native` (headless) is enough to capture and save;
-`CV2_GUI=android` gives the fastest live preview. Video **files** decode through
-MediaNDK; `rtsp://`/`http://` streams need FFmpeg, which is not built.
+`CV2_GUI=android` gives the fastest live preview. Frames arrive as upright
+**BGR** (sensor rotation is applied; `cap.set(cv2.CAP_PROP_ORIENTATION_AUTO, 0)`
+disables it). Video **files** decode through MediaNDK; `rtsp://`/`http://`
+streams need FFmpeg, which is not built.
 
 [`examples/camera_capture.py`](examples/camera_capture.py) is a ready-to-run
-capture/preview script. See [`CAMERA.md`](CAMERA.md) for the root cause, the
-exact patch and device-verification steps.
+capture/preview script and [`examples/camera_check.py`](examples/camera_check.py)
+writes a full diagnostic (wheel hash, FOURCC, orientation, frame shape) to
+`/storage/emulated/0/camera_check.txt`. See [`CAMERA.md`](CAMERA.md) for the
+root cause, the exact patch and device-verification steps.
 
 On Pydroid 3, `auto` selects the **Tkinter** backend because Pydroid's
 matplotlib is usually `Agg`-only. If a window still does not appear, check

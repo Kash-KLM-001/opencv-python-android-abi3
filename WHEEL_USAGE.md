@@ -204,6 +204,44 @@ cv2.imshow("photo", cv2.imread("photo.jpg"))   # same thing, explicit
 Any other unsupported object raises a `TypeError` naming the dtype, and an
 unreadable path raises `FileNotFoundError`.
 
+## Running a long snippet: `cv2.base_runner`
+
+`from cv2 import base_runner` executes Python source held in a string, with
+`cv2` already bound, so a long block can live outside the launching file:
+
+```python
+from cv2 import base_runner
+
+base_runner('''
+cap = cv2.VideoCapture(0)
+ok, frame = cap.read()
+print(frame.shape)
+cap.release()
+''')
+```
+
+A path to an existing `.py` file also works, which is handy on a phone where
+typing is the bottleneck:
+
+```python
+from cv2 import base_runner
+base_runner("/storage/emulated/0/face_eye_detect.py")
+```
+
+* The code runs with `__name__ == "__main__"`, `__file__` set to the snippet
+  name (or the `.py` path), and `cv2` pre-bound.
+* The namespace is returned, so variables created by the snippet can be read
+  back: `out = base_runner("x = 6 * 7"); out["x"] == 42`.
+* `namespace={...}` pre-seeds the globals, and a non-`str` argument raises
+  `TypeError`.
+
+This is plain `exec` — a convenience, not a sandbox. Only run code you trust.
+
+One Android-specific caveat: Pydroid decides whether to start a Kivy process by
+scanning the *launching file* for `from kivy.app import App`. An import hidden
+inside a string is invisible to that scan, so `CV2_GUI=android` snippets still
+need a real top-level Kivy import in the file you launch.
+
 ## Camera and video I/O
 
 | Input | Backend | Status |

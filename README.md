@@ -102,6 +102,8 @@ preloaded manually. Prefer the dedicated wheel for each runtime.
   protobuf, FlatBuffers, ADE, quirc, zlib, carotene NEON HAL
 - **MediaNDK** decode/encode and **Camera2 NDK** capture
   (`cv2.CAP_ANDROID` / `ANDROID_NATIVE`)
+- **`cv2.base_runner(code)`** — run a long snippet (or `.py` path) with `cv2`
+  pre-bound, so a 5-line launcher can drive a big program
 - `libc++_static` (no `libc++_shared.so` dependency)
 
 Only Android system libraries are required at runtime: `libandroid.so`,
@@ -201,6 +203,7 @@ On Termux (Android, Python 3.14.6, NumPy 2.5.4), with `LD_PRELOAD` unset:
 - contrib `xfeatures2d`, `ximgproc`
 - videoio registry includes `ANDROID_NATIVE` (MediaNDK)
 - 17 Haar + 5 LBP cascades present and `CascadeClassifier` loads a cascade
+- `base_runner("x = 6 * 7")["x"] == 42`, and a path argument runs the file
 - no CPython private-symbol references; only `Py_BuildValue`, `Py_DecRef`,
   `Py_IncRef` (public stable ABI) remain undefined
 

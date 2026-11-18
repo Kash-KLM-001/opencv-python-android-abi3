@@ -5,6 +5,19 @@ All notable changes to this wheel. Each entry follows the same template:
 
 ## Unreleased
 
+### Added — `cv2.base_runner()`
+
+* **What:** `from cv2 import base_runner` executes a Python source string (or
+  a `.py` path) with `cv2` pre-bound, `__name__ == "__main__"`, and returns the
+  resulting namespace. Useful on a phone, where keeping a long snippet in the
+  launching file is awkward.
+* **Why in `cv2`:** the package is always imported before the snippet can run,
+  so the helper costs nothing until called and needs no extra module name.
+* **Verify:** `base_runner("x = 6 * 7")["x"] == 42`; `base_runner(123)` raises
+  `TypeError`; a path argument reads and runs the file.
+* **Caveat:** plain `exec`, not a sandbox. Pydroid's Kivy detection scans the
+  launching file, so Kivy imports inside a string are invisible to it.
+
 ### Fixed — camera preview was grayscale, rotated and glitched
 
 * **Symptom:** `CV2_GUI=android` showed a grey, 90°-rotated frame with a

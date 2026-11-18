@@ -13,10 +13,18 @@ All notable changes to this wheel. Each entry follows the same template:
   launching file is awkward.
 * **Why in `cv2`:** the package is always imported before the snippet can run,
   so the helper costs nothing until called and needs no extra module name.
+* **Android display:** `CV2_GUI=android` needs a live Activity plus a running
+  Kivy process (pyjnius is unavailable in Termux). When a snippet calls
+  `imshow` and doesn't start an app itself, `base_runner` wraps it in a minimal
+  Kivy app and runs the snippet on a worker thread, so a blocking
+  `while True: ... imshow(); waitKey(1)` loop works unchanged.
+  `app=True` forces the wrapper, `app=False` keeps plain `exec`.
 * **Verify:** `base_runner("x = 6 * 7")["x"] == 42`; `base_runner(123)` raises
-  `TypeError`; a path argument reads and runs the file.
-* **Caveat:** plain `exec`, not a sandbox. Pydroid's Kivy detection scans the
-  launching file, so Kivy imports inside a string are invisible to it.
+  `TypeError`; a path argument reads and runs the file; with a stub Kivy, the
+  snippet sees a running app, an own `class A(App)` snippet is not wrapped,
+  `app=False` leaves `App.get_running_app()` as `None`, and exceptions are
+  re-raised with their original traceback.
+* **Caveat:** plain `exec`, not a sandbox.
 
 ### Fixed — camera preview was grayscale, rotated and glitched
 

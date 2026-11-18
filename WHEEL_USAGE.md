@@ -237,10 +237,54 @@ base_runner("/storage/emulated/0/face_eye_detect.py")
 
 This is plain `exec` — a convenience, not a sandbox. Only run code you trust.
 
-One Android-specific caveat: Pydroid decides whether to start a Kivy process by
-scanning the *launching file* for `from kivy.app import App`. An import hidden
-inside a string is invisible to that scan, so `CV2_GUI=android` snippets still
-need a real top-level Kivy import in the file you launch.
+### Android display: the `App` boilerplate is provided for you
+
+`CV2_GUI=android` draws through pyjnius, which needs a live Android Activity
+and a running Kivy process (Termux has neither). So a snippet that calls
+`cv2.imshow` would otherwise need the whole Kivy shell:
+
+```python
+from kivy.app import App
+from kivy.clock import Clock
+
+class A(App):
+    def on_start(self):
+        Clock.schedule_interval(tick, 1 / 30)
+
+A().run()
+```
+
+`base_runner` supplies that for you. This is a complete program:
+
+```python
+import os
+os.environ["CV2_GUI"] = "android"
+from cv2 import base_runner
+
+base_runner('''
+cap = cv2.VideoCapture(0)
+while True:
+    ok, frame = cap.read()
+    if not ok:
+        break
+    cv2.imshow("camera", frame)
+    if cv2.waitKey(1) == 27:
+        break
+''')
+```
+
+The snippet runs on a worker thread while Kivy keeps pumping the UI, so a
+blocking `while` loop and `waitKey` behave exactly as they do on desktop.
+When the snippet returns, the app closes itself.
+
+| Argument | Behaviour |
+|---|---|
+| `app=None` (default) | Wrap only when `CV2_GUI=android`, the snippet calls `imshow`, Kivy is installed, and the snippet doesn't start its own app |
+| `app=True` | Always wrap (raises `RuntimeError` if Kivy is missing) |
+| `app=False` | Never wrap — plain `exec`, for headless code |
+
+A snippet that already defines `class A(App)` and calls `A().run()` is left
+alone, so both styles work.
 
 ## Camera and video I/O
 

@@ -95,6 +95,7 @@ ninja modules/videoio/CMakeFiles/opencv_videoio.dir/src/cap_android_camera.cpp.o
 
 # relink the extension and rebuild wheels
 ./build_abi3.sh
+bash strip_abi3.sh          # 444 MB unstripped -> ~40 MB stripped
 
 cp output/cv2.abi3.so output/cv2.abi3.pydroid.so
 patchelf --add-needed libpython3.13.so output/cv2.abi3.pydroid.so

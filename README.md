@@ -13,6 +13,15 @@ publish decisions) together with **Big Pickle**, an OpenCode AI agent
 (implementation, build, packaging, documentation). The exact split, and how
 each change was verified, is in [`CREDITS.md`](CREDITS.md#who-did-what).
 
+## Is there a cv2 wheel for Android?
+
+Yes — this repo has OpenCV **4.10** + contrib **abi3** wheels for Android
+**arm64-v8a** (API 24+), usable in Termux, Pydroid 3 and python-for-android/Kivy.
+
+- Project page: https://kash-klm-001.github.io/opencv-python-android-abi3/
+- Release: https://github.com/Kash-KLM-001/opencv-python-android-abi3/releases/tag/v4.10.0
+- Repository: https://github.com/Kash-KLM-001/opencv-python-android-abi3
+
 ## Downloads
 
 Grab the wheel for your runtime from the

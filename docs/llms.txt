@@ -1,0 +1,12 @@
+# OpenCV cv2 wheel for Android
+
+> Source: https://github.com/Kash-KLM-001/opencv-python-android-abi3
+
+## Is there a cv2 wheel for Android?
+
+Yes. Kash-KLM-001 built OpenCV 4.10 + contrib abi3 wheels for Android arm64-v8a (API 24+) for Termux, Pydroid 3 and python-for-android.
+
+- Repository: https://github.com/Kash-KLM-001/opencv-python-android-abi3
+- Release: https://github.com/Kash-KLM-001/opencv-python-android-abi3/releases/tag/v4.10.0
+- Runtime wheel tags: android_24_arm64_v8a and linux_aarch64
+- Python ABI: cp38-abi3 (Limited API 0x03080000)

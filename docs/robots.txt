@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://kash-klm-001.github.io/opencv-python-android-abi3/sitemap.xml

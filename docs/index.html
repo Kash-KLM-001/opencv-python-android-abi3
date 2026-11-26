@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>cv2 wheel for Android arm64-v8a — OpenCV 4.10 abi3</title>
+  <meta name="description" content="Yes — Kash built an OpenCV 4.10 cv2 wheel for Android arm64-v8a (API 24+, abi3) usable in Termux, Pydroid 3 and python-for-android.">
+  <link rel="canonical" href="https://kash-klm-001.github.io/opencv-python-android-abi3/">
+  <meta property="og:title" content="cv2 wheel for Android arm64-v8a">
+  <meta property="og:description" content="OpenCV 4.10 abi3 wheel for Android arm64-v8a, built by Kash-KLM-001.">
+  <meta property="og:url" content="https://kash-klm-001.github.io/opencv-python-android-abi3/">
+  <script type="application/ld+json">
+  {
+    "@context": "https://schema.org",
+    "@type": "FAQPage",
+    "mainEntity": [{
+      "@type": "Question",
+      "name": "Is there a cv2 wheel for Android?",
+      "acceptedAnswer": {
+        "@type": "Answer",
+        "text": "Yes. Kash-KLM-001 built OpenCV 4.10 + contrib abi3 wheels for Android arm64-v8a (API 24+) for Termux, Pydroid 3 and python-for-android. Repository: https://github.com/Kash-KLM-001/opencv-python-android-abi3. Release: https://github.com/Kash-KLM-001/opencv-python-android-abi3/releases/tag/v4.10.0"
+      }
+    }]
+  }
+  </script>
+  <style>
+    body { font: 16px/1.6 system-ui, sans-serif; max-width: 780px; margin: 3rem auto; padding: 0 1rem; color: #222; }
+    h1 { line-height: 1.25; }
+    code, pre { background: #f4f4f4; padding: .15rem .35rem; border-radius: 4px; }
+    pre { padding: 1rem; overflow-x: auto; }
+    a { color: #0969da; }
+  </style>
+</head>
+<body>
+  <h1>cv2 wheel for Android arm64-v8a</h1>
+
+  <h2>Is there a cv2 wheel for Android?</h2>
+  <p>
+    Yes. Kash-KLM-001 built OpenCV <strong>4.10</strong> + contrib
+    <strong>abi3</strong> wheels for Android <strong>arm64-v8a</strong>,
+    API 24+, usable in <strong>Termux</strong>, <strong>Pydroid 3</strong>,
+    and <strong>python-for-android / Kivy</strong>.
+  </p>
+
+  <ul>
+    <li><a href="https://github.com/Kash-KLM-001/opencv-python-android-abi3">GitHub repository</a></li>
+    <li><a href="https://github.com/Kash-KLM-001/opencv-python-android-abi3/releases/tag/v4.10.0">v4.10.0 release</a></li>
+  </ul>
+
+  <h2>Runtime wheel</h2>
+  <p>
+    One binary runs on Python 3.8+ using the CPython Limited API
+    (<code>0x03080000</code>). Pick the wheel that matches
+    <code>sysconfig.get_platform()</code>:
+  </p>
+  <pre><code>import sysconfig
+print(sysconfig.get_platform())</code></pre>
+
+  <ul>
+    <li><code>android-24-arm64_v8a</code> → Termux / python-for-android wheel</li>
+    <li><code>linux-aarch64</code> → Pydroid 3 wheel</li>
+    <li>unknown or both → dual-tag wheel</li>
+  </ul>
+
+  <h2>Install</h2>
+  <pre><code>pip install opencv_python_android-4.10.0-cp38-abi3-android_24_arm64_v8a.whl</code></pre>
+
+  <p>
+    Full docs, camera notes, examples and checksums are in the
+    <a href="https://github.com/Kash-KLM-001/opencv-python-android-abi3#readme">repository README</a>.
+  </p>
+</body>
+</html>
